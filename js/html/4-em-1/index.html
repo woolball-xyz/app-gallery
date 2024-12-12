@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>🧶 Wool Ball</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos gerais */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Lato", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FFECD6 0%, #FFD9A8 100%);
+            color: #5A3921;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .hero {
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #FFB88C 0%, #FFD1A9 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            padding: 20px;
+        }
+        .hero h1 {
+            font-size: 128px;
+            margin-bottom: 10px;
+            color: #FFF8F2;
+        }
+        .hero h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #FFF5ED;
+        }
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            background: #FFF5ED;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 335px;
+            text-align: center;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        .card-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #5A3921;
+        }
+        .card-input, .card-output {
+            font-style: italic;
+            color: #938d89;
+            font-size: 16px;
+            margin-top: 10px;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+        .start-button {
+            margin-top: 30px;
+            padding: 15px 30px;
+            background: #FF7F50;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .start-button:hover {
+            background: #FF4500;
+            transform: scale(1.05);
+        }
+        .start-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .processing {
+            background: linear-gradient(270deg, #fffefa, #ffd54f, #fffefa);
+            background-size: 400% 400%;
+            animation: gradientAnimation 3s ease infinite;
+        }
+        .success {
+            background: linear-gradient(to top right, #f2f6f3,#f2f6f3,#f2f6f3, #c8e6c9); /* Soft green gradient */
+        }
+        .error {
+            background: linear-gradient(to bottom right, #ffebee, #ffcdd2); /* Soft red gradient */
+        }
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>🧶</h1>
+        <h2>4 em 1</h2>
+        <button class="start-button" id="start-button">Iniciar</button>
+        <div class="cards-container">
+            <div class="card" id="card-stt">
+                <div class="card-input" id="input-stt"></div>
+                <div class="card-icon">🎙️</div>
+                <div class="card-title">Fala para Texto</div>
+                <div class="card-output" id="output-stt"></div>
+            </div>
+            <div class="card" id="card-tg">
+                <div class="card-input" id="input-tg"></div>
+                <div class="card-icon">💡</div>
+                <div class="card-title">Geração de Texto</div>
+                <div class="card-output" id="output-tg"></div>
+            </div>
+            <div class="card" id="card-translation-pt">
+                <div class="card-input" id="input-translation-pt"></div>
+                <div class="card-icon">🌐</div>
+                <div class="card-title">Tradução (PT)</div>
+                <div class="card-output" id="output-translation-pt"></div>
+            </div>
+            <div class="card" id="card-translation-es">
+                <div class="card-input" id="input-translation-es"></div>
+                <div class="card-icon">🌐</div>
+                <div class="card-title">Tradução (ES)</div>
+                <div class="card-output" id="output-translation-es"></div>
+            </div>
+            <div class="card" id="card-tts-pt">
+                <div class="card-input" id="input-tts-pt"></div>
+                <div class="card-icon">🔊</div>
+                <div class="card-title">Texto para Fala (PT)</div>
+                <div class="card-output" id="output-tts-pt"></div>
+            </div>
+            <div class="card" id="card-tts-es">
+                <div class="card-input" id="input-tts-es"></div>
+                <div class="card-icon">🔊</div>
+                <div class="card-title">Texto para Fala (ES)</div>
+                <div class="card-output" id="output-tts-es"></div>
+            </div>
+            <div class="card" id="card-tts-en">
+                <div class="card-input" id="input-tts-en"></div>
+                <div class="card-icon">🔊</div> 
+                <div class="card-title">Texto para Fala (EN)</div>
+                <div class="card-output" id="output-tts-en"></div>
+            </div>
+        </div>
+    </section>
+    <script>
+        const baseUrl = "https://api.woolball.xyz/v1";
+        const authorizationHeader = {
+            Authorization: "Bearer API_KEY"
+        };
+
+        // Helper functions for visual indicators
+        const setCardProcessing = (cardId) => {
+            const card = document.getElementById(cardId);
+            card.classList.remove('success', 'error');
+            card.classList.add('processing');
+        };
+
+        const setCardSuccess = (cardId) => {
+            const card = document.getElementById(cardId);
+            card.classList.remove('processing', 'error');
+            card.classList.add('success');
+        };
+
+        const setCardError = (cardId) => {
+            const card = document.getElementById(cardId);
+            card.classList.remove('processing', 'success');
+            card.classList.add('error');
+        };
+
+        const processSpeechToText = async () => {
+            const cardId = "card-stt";
+            setCardProcessing(cardId);
+            try {
+                const response = await fetch('./input.wav');
+                if (!response.ok) throw new Error('Erro ao carregar o arquivo de áudio');
+                const audioData = await response.blob();
+                document.getElementById("input-stt").innerHTML = '<audio controls src="input.wav" />';
+                const formData = new FormData();
+                formData.append('audio', audioData);
+
+                const sttResponse = await fetch(`${baseUrl}/speech-to-text`, {
+                    method: "POST",
+                    headers: authorizationHeader,
+                    body: formData
+                });
+
+                const sttData = await sttResponse.json();
+                const text = sttData.data;
+               
+                document.getElementById("output-stt").textContent = text;
+
+                setCardSuccess(cardId);
+                processCompletions(text);
+            } catch (error) {
+                setCardError(cardId);
+                console.error(error);
+            }
+        };
+
+        const processCompletions = async (text) => {
+            const cardId = "card-tg";
+            setCardProcessing(cardId);
+            try {
+                const tgResponse = await fetch(`${baseUrl}/completions?text=${encodeURIComponent(text)}`, {
+                    headers: authorizationHeader
+                });
+
+                const tgData = await tgResponse.json();
+                const generatedText = tgData.data;
+
+                document.getElementById("input-tg").textContent = text;
+                document.getElementById("output-tg").textContent = generatedText;
+
+                setCardSuccess(cardId);
+                processTextToSpeech("en", generatedText, "output-tts-en", "card-tts-en");
+                processTranslation(generatedText, "por_Latn", "output-translation-pt", "output-tts-pt", "pt");
+                processTranslation(generatedText, "spa_Latn", "output-translation-es", "output-tts-es", "es");
+            } catch (error) {
+                setCardError(cardId);
+                console.error(error);
+            }
+        };
+
+        const processTranslation = async (text, targetLang, outputIdTranslation, outputIdTTS, ttsLang) => {
+            const cardTranslationId = targetLang === "por_Latn" ? "card-translation-pt" : "card-translation-es";
+            const cardTTSId = outputIdTTS === "output-tts-pt" ? "card-tts-pt" : "card-tts-es";
+
+            setCardProcessing(cardTranslationId);
+            try {
+                const translationResponse = await fetch(`${baseUrl}/translation`, {
+                    method: "POST",
+                    headers: {
+                        ...authorizationHeader,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        Text: text,
+                        SrcLang: "eng_Latn",
+                        TgtLang: targetLang
+                    }),
+                });
+
+                const translationData = await translationResponse.json();
+                const translatedText = translationData.data;
+
+                document.getElementById(outputIdTranslation).textContent = translatedText;
+                setCardSuccess(cardTranslationId);
+
+                processTextToSpeech(ttsLang, translatedText, outputIdTTS, cardTTSId);
+            } catch (error) {
+                setCardError(cardTranslationId);
+                console.error(error);
+            }
+        };
+
+        const processTextToSpeech = async (lang, text, outputId, cardId) => {
+            setCardProcessing(cardId);
+            try {
+                const ttsResponse = await fetch(`${baseUrl}/text-to-speech/${lang}?text=${encodeURIComponent(text)}`, {
+                    headers: authorizationHeader
+                });
+
+                const ttsData = await ttsResponse.json();
+                const audioBase64 = ttsData.data;
+                const audioBlob = new Blob([Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0))], { type: "audio/mp3" });
+                const audioUrl = URL.createObjectURL(audioBlob);
+
+                const audioElement = document.createElement("audio");
+                audioElement.src = audioUrl;
+                audioElement.controls = true;
+
+                document.getElementById(outputId).appendChild(audioElement);
+                setCardSuccess(cardId);
+            } catch (error) {
+                setCardError(cardId);
+                console.error(error);
+            }
+        };
+
+        document.getElementById('start-button').addEventListener('click', async () => {
+            const startButton = document.getElementById('start-button');
+            startButton.disabled = true;
+            try {
+                await processSpeechToText();
+            } finally {
+                startButton.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
