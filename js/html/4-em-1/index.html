@@ -126,6 +126,12 @@
                 <div class="card-title">Fala para Texto</div>
                 <div class="card-output" id="output-stt"></div>
             </div>
+            <div class="card" id="card-translation-en">
+                <div class="card-input" id="input-translation-en"></div>
+                <div class="card-icon">🌐</div>
+                <div class="card-title">Tradução (EN)</div>
+                <div class="card-output" id="output-translation-en"></div>
+            </div>
             <div class="card" id="card-tg">
                 <div class="card-input" id="input-tg"></div>
                 <div class="card-icon">💡</div>
@@ -212,7 +218,9 @@
                 document.getElementById("output-stt").textContent = text;
 
                 setCardSuccess(cardId);
-                processCompletions(text);
+
+                processTranslation(text, "eng_Latn", "output-translation-en", "output-tts-en", "en");
+
             } catch (error) {
                 setCardError(cardId);
                 console.error(error);
@@ -244,8 +252,8 @@
         };
 
         const processTranslation = async (text, targetLang, outputIdTranslation, outputIdTTS, ttsLang) => {
-            const cardTranslationId = targetLang === "por_Latn" ? "card-translation-pt" : "card-translation-es";
-            const cardTTSId = outputIdTTS === "output-tts-pt" ? "card-tts-pt" : "card-tts-es";
+            const cardTranslationId = targetLang === "por_Latn" ? "card-translation-pt" : targetLang === "spa_Latn" ? "card-translation-es" : "card-translation-en";
+            const cardTTSId = outputIdTTS === "output-tts-pt" ? "card-tts-pt" : outputIdTTS === "output-tts-es" ? "card-tts-es" : "card-tts-en";
 
             setCardProcessing(cardTranslationId);
             try {
@@ -257,7 +265,7 @@
                     },
                     body: JSON.stringify({
                         Text: text,
-                        SrcLang: "eng_Latn",
+                        SrcLang: targetLang === "eng_Latn" ? "por_Latn" : "eng_Latn",
                         TgtLang: targetLang
                     }),
                 });
@@ -267,8 +275,12 @@
 
                 document.getElementById(outputIdTranslation).textContent = translatedText;
                 setCardSuccess(cardTranslationId);
+                if(cardTranslationId === "card-translation-en"){
+                    processCompletions(translatedText);
+                }else{
 
-                processTextToSpeech(ttsLang, translatedText, outputIdTTS, cardTTSId);
+                    processTextToSpeech(ttsLang, translatedText, outputIdTTS, cardTTSId);
+                }
             } catch (error) {
                 setCardError(cardTranslationId);
                 console.error(error);
