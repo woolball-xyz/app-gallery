@@ -231,7 +231,7 @@
             const cardId = "card-tg";
             setCardProcessing(cardId);
             try {
-                const tgResponse = await fetch(`${baseUrl}/completions?model=HuggingFaceTB/SmolLM2-360M-Instruct&text=${encodeURIComponent(text)}`, {
+                const tgResponse = await fetch(`${baseUrl}/completions?model=HuggingFaceTB/SmolLM2-135M-Instruct&text=${encodeURIComponent(text)}`, {
                     headers: authorizationHeader
                 });
 
