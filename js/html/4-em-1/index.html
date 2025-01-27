@@ -206,7 +206,7 @@
                 const formData = new FormData();
                 formData.append('audio', audioData);
 
-                const sttResponse = await fetch(`${baseUrl}/speech-to-text`, {
+                const sttResponse = await fetch(`${baseUrl}/speech-to-text?outputLanguage=pt`, {
                     method: "POST",
                     headers: authorizationHeader,
                     body: formData
