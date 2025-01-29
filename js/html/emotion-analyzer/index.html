@@ -1,0 +1,259 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Emotion Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Emotion Analyzer</h1>
+      <div class="controls">
+        <button id="startBtn">Start Recording</button>
+        <button id="stopBtn" disabled>Stop Recording</button>
+      </div>
+      <div class="content">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display: none"></canvas>
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      function setupCounter(element) {
+        let counter = 0;
+        const setCounter = (count) => {
+          counter = count;
+          element.innerHTML = `count is ${counter}`;
+        };
+        element.addEventListener("click", () => setCounter(counter + 1));
+        setCounter(0);
+      }
+
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+      const chartCanvas = document.getElementById("chartCanvas");
+      const content = document.querySelector(".content");
+
+      let mediaStream = null;
+      let captureInterval = null;
+      let emotionsData = [];
+      let chart = null;
+
+      // API configuration
+      const apiBaseUrl = "https://api.woolball.xyz";
+      const endpoint = "/v1/image-facial-emotions";
+
+      // API key (replace with your own)
+      const apiKey = "";
+      async function setupWebcam() {
+        console.log("🎥 Setting up webcam...");
+        try {
+          mediaStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          console.log(
+            "✅ Webcam access granted:",
+            mediaStream.getVideoTracks()[0].label
+          );
+          video.srcObject = mediaStream;
+          canvas.width = video.width = 640;
+          canvas.height = video.height = 480;
+        } catch (error) {
+          console.error("❌ Error accessing webcam:", error);
+        }
+      }
+
+      async function captureAndAnalyze() {
+        console.log("📸 Capturing frame...");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(async (blob) => {
+          console.log("🖼️ Image blob created:", blob.size, "bytes");
+          const formData = new FormData();
+          formData.append("image", blob, "camera-image.png");
+
+          console.log("🌐 Sending request to API...");
+          try {
+            const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+              method: "POST",
+              headers: {
+                Authorization: apiKey,
+              },
+              body: formData,
+            });
+
+            console.log("📡 API Response status:", response.status);
+            const responseData = await response.json();
+            console.log("📊 API Response data:", responseData);
+
+            if (
+              responseData &&
+              responseData.data &&
+              Array.isArray(responseData.data)
+            ) {
+              console.log("✨ Processing emotions data...");
+              const emotionObject = {};
+              for (const item of responseData.data) {
+                emotionObject[item.label] = item.score;
+              }
+              emotionsData.push(emotionObject);
+              console.log("📝 Current emotions array:", emotionsData);
+              console.log("📝 Total records:", emotionsData.length);
+              updateChart();
+            } else {
+              console.warn("⚠️ Invalid or empty response from API");
+            }
+          } catch (error) {
+            console.error("❌ Error analyzing image:", error);
+          }
+        }, "image/png");
+      }
+
+      function updateChart() {
+        console.log("📊 Updating chart...");
+        console.log("📝 Current emotions data array:", emotionsData);
+
+        if (emotionsData.length === 0) {
+          console.warn("⚠️ No emotions data to display");
+          return;
+        }
+
+        if (chart) {
+          console.log("🔄 Destroying old chart");
+          chart.destroy();
+        }
+
+        const emotions = {};
+        console.log("🔄 Processing emotions data for chart...");
+        emotionsData.forEach((data, index) => {
+          console.log(`📝 Processing record ${index + 1}:`, data);
+          Object.entries(data).forEach(([emotion, value]) => {
+            if (!emotions[emotion]) {
+              emotions[emotion] = 0;
+            }
+            emotions[emotion] += parseFloat(value);
+            console.log(
+              `   ${emotion}: ${value} (Total: ${emotions[emotion]})`
+            );
+          });
+        });
+
+        const labels = Object.keys(emotions);
+        const values = Object.values(emotions).map(
+          (value) => value / emotionsData.length
+        );
+
+        console.log("📊 Final chart data:");
+        console.log("   Labels:", labels);
+        console.log("   Values:", values);
+
+        const colors = {
+          happy: "#FFD700", // Gold
+          angry: "#FF4136", // Red
+          fear: "#9932CC", // Purple
+          sad: "#0074D9", // Blue
+          surprise: "#FF851B", // Orange
+          neutral: "#AAAAAA", // Gray
+          disgust: "#2ECC40", // Green
+        };
+
+        chart = new Chart(chartCanvas, {
+          type: "pie",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                data: values,
+                backgroundColor: labels.map(
+                  (label) => colors[label] || "#FF6384"
+                ),
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: "Average Emotions Distribution",
+                color: "#FFFFFF",
+                font: {
+                  size: 16,
+                  weight: "bold",
+                },
+              },
+              legend: {
+                display: true,
+                position: "bottom",
+                labels: {
+                  color: "#FFFFFF",
+                  padding: 20,
+                  font: {
+                    size: 14,
+                  },
+                },
+              },
+            },
+          },
+        });
+        console.log("✅ Chart updated successfully");
+      }
+
+      startBtn.addEventListener("click", async () => {
+        console.log("🎬 Starting recording...");
+        await setupWebcam();
+        emotionsData = [];
+        console.log("📝 Emotions data array cleared");
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+        content.classList.add("recording");
+        content.classList.remove("stopped");
+        captureInterval = setInterval(captureAndAnalyze, 5000);
+        console.log("⏱️ Capture interval started: every 5 seconds");
+      });
+
+      stopBtn.addEventListener("click", () => {
+        console.log("🛑 Stopping recording...");
+        clearInterval(captureInterval);
+        console.log("⏱️ Capture interval cleared");
+
+        if (mediaStream) {
+          console.log("📹 Current media stream:", mediaStream.getVideoTracks());
+          mediaStream.getTracks().forEach((track) => {
+            console.log("   Stopping track:", track.label);
+            track.stop();
+          });
+        }
+
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+        content.classList.remove("recording");
+        content.classList.add("stopped");
+
+        console.log("📊 Final emotions data:", emotionsData);
+        if (emotionsData.length > 0) {
+          console.log("🔄 Generating final chart...");
+          updateChart();
+        } else {
+          console.warn("⚠️ No data collected during recording");
+        }
+      });
+
+      // Initial setup
+      console.log("🚀 Application starting...");
+      content.classList.add("recording");
+      setupWebcam();
+    </script>
+  </body>
+</html>
