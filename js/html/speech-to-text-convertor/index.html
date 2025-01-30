@@ -422,7 +422,7 @@
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Authorization': 'Bearer X'
+                        'Authorization': 'Bearer x'
                     },
                     body: formData
                 });
@@ -440,20 +440,19 @@
             }
         });
 
-        function displayResult(data) {
+        function displayResult(response) {
             resultCard.style.display = 'block';
-            
-            if (data.segments) {
-                resultDiv.innerHTML = data.segments
+            if (response.data.chunks) {
+                resultDiv.innerHTML = response.data.chunks
                     .map(segment => `
-                        <div class="timestamp-segment" onclick="seekToTime(${segment.start})">
-                            <span class="timestamp">[${Math.floor(segment.start)}s - ${Math.floor(segment.end)}s]</span>
+                        <div class="timestamp-segment" onclick="seekToTime(${segment.timestamp[0]})">
+                            <span class="timestamp">[${Math.floor(segment.timestamp[0])}s - ${Math.floor(segment.timestamp[1])}s]</span>
                             <span>${segment.text}</span>
                         </div>
                     `)
                     .join('');
             } else {
-                resultDiv.textContent = data.text;
+                resultDiv.textContent = response.data;
             }
         }
 
