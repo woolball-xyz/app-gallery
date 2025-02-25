@@ -327,20 +327,23 @@
                 webvttResult.style.display = 'block';
                 webvttResult.querySelector('pre').textContent = response.data.webvtt;
                 
+                // Ensure WebVTT starts with WEBVTT header
+                const webvttContent = response.data.webvtt.startsWith('WEBVTT') 
+                    ? response.data.webvtt 
+                    : 'WEBVTT\n\n' + response.data.webvtt;
+
                 // Create WebVTT blob and add to track element
-                const blob = new Blob([response.data.webvtt], { type: 'text/vtt' });
+                const blob = new Blob([webvttContent], { type: 'text/vtt' });
                 const trackUrl = URL.createObjectURL(blob);
                 
                 const player = mediaType === 'video' ? videoPlayer : audioPlayer;
                 
-                // Remove any existing tracks
-                while (player.firstChild) {
-                    if (player.firstChild instanceof HTMLTrackElement) {
-                        if (player.firstChild.src) {
-                            URL.revokeObjectURL(player.firstChild.src);
-                        }
-                        player.removeChild(player.firstChild);
-                    }
+                // Remove any existing tracks from track list
+                Array.from(player.textTracks).forEach(track => {
+                    track.mode = 'disabled';
+                });
+                while (player.getElementsByTagName('track').length > 0) {
+                    player.getElementsByTagName('track')[0].remove();
                 }
                 
                 // Add new track with correct language
@@ -352,8 +355,21 @@
                 track.default = true;
                 player.appendChild(track);
                 
-                // Force enable showing tracks
-                player.textTracks[0].mode = 'showing';
+                // Wait for track to load then force show
+                track.addEventListener('load', () => {
+                    const textTrack = player.textTracks[0];
+                    if (textTrack) {
+                        textTrack.mode = 'showing';
+                    }
+                });
+                
+                // Backup: try to force show after a small delay
+                setTimeout(() => {
+                    const textTrack = player.textTracks[0];
+                    if (textTrack) {
+                        textTrack.mode = 'showing';
+                    }
+                }, 100);
             } else {
                 webvttResult.style.display = 'none';
             }
