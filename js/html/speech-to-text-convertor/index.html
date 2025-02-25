@@ -351,15 +351,18 @@
                 track.src = trackUrl;
                 track.default = true;
                 player.appendChild(track);
+                
+                // Force enable showing tracks
+                player.textTracks[0].mode = 'showing';
             } else {
                 webvttResult.style.display = 'none';
             }
         }
 
         function seekToTime(time) {
-            const audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.currentTime = time;
-            audioPlayer.play();
+            const player = mediaType === 'video' ? videoPlayer : audioPlayer;
+            player.currentTime = time;
+            player.play();
         }
 
         function showToast(message, type) {
