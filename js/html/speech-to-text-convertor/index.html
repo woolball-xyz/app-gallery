@@ -327,14 +327,25 @@
                 webvttResult.style.display = 'block';
                 webvttResult.querySelector('pre').textContent = response.data.webvtt;
                 
-                // Ensure WebVTT starts with WEBVTT header
-                const webvttContent = response.data.webvtt.startsWith('WEBVTT') 
-                    ? response.data.webvtt 
-                    : 'WEBVTT\n\n' + response.data.webvtt;
-
-                // Create WebVTT blob and add to track element
+                // Format and validate WebVTT content
+                let webvttContent = response.data.webvtt;
+                console.log('Original WebVTT:', webvttContent);
+                
+                // Ensure proper WebVTT format
+                if (!webvttContent.startsWith('WEBVTT')) {
+                    webvttContent = 'WEBVTT\n\n' + webvttContent;
+                }
+                
+                // Ensure proper line endings and timing format
+                webvttContent = webvttContent.replace(/\r\n/g, '\n');
+                webvttContent = webvttContent.replace(/,/g, '.');
+                
+                console.log('Formatted WebVTT:', webvttContent);
+                
+                // Create WebVTT blob with correct MIME type
                 const blob = new Blob([webvttContent], { type: 'text/vtt' });
                 const trackUrl = URL.createObjectURL(blob);
+                console.log('Track URL:', trackUrl);
                 
                 const player = mediaType === 'video' ? videoPlayer : audioPlayer;
                 
@@ -355,21 +366,42 @@
                 track.default = true;
                 player.appendChild(track);
                 
-                // Wait for track to load then force show
+                // Debug track loading
                 track.addEventListener('load', () => {
+                    console.log('Track loaded');
                     const textTrack = player.textTracks[0];
                     if (textTrack) {
+                        console.log('TextTrack found:', textTrack);
                         textTrack.mode = 'showing';
+                        console.log('TextTrack mode set to:', textTrack.mode);
+                    } else {
+                        console.log('No TextTrack found');
                     }
                 });
                 
-                // Backup: try to force show after a small delay
-                setTimeout(() => {
+                track.addEventListener('error', (e) => {
+                    console.error('Track error:', e);
+                });
+                
+                // Try multiple times to ensure track is shown
+                const tryShowTrack = () => {
                     const textTrack = player.textTracks[0];
                     if (textTrack) {
                         textTrack.mode = 'showing';
+                        console.log('TextTrack mode set in timeout:', textTrack.mode);
+                        
+                        // Debug cues
+                        console.log('Number of cues:', textTrack.cues ? textTrack.cues.length : 0);
+                        if (textTrack.cues) {
+                            console.log('First cue:', textTrack.cues[0]);
+                        }
                     }
-                }, 100);
+                };
+                
+                // Try multiple times with increasing delays
+                setTimeout(tryShowTrack, 100);
+                setTimeout(tryShowTrack, 500);
+                setTimeout(tryShowTrack, 1000);
             } else {
                 webvttResult.style.display = 'none';
             }
