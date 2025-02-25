@@ -4,222 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Speech to Text Converter</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(to bottom, #faf5ff, #ffffff);
-            padding: 2rem;
-        }
-
-        .container {
-            max-width: 64rem;
-            margin: 0 auto;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 2rem;
-            background: linear-gradient(to right, #9333ea, #4f46e5);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-size: 2.5rem;
-            font-weight: bold;
-        }
-
-        .card {
-            background: white;
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #374151;
-        }
-
-        select, input[type="checkbox"] {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            background-color: white;
-            color: #374151;
-        }
-
-        .dropzone {
-            border: 2px dashed #d1d5db;
-            border-radius: 0.5rem;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.2s;
-        }
-
-        .dropzone:hover {
-            border-color: #9333ea;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 1rem;
-        }
-
-        button {
-            padding: 0.5rem 1rem;
-            border-radius: 0.375rem;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 10rem;
-            justify-content: center;
-        }
-
-        .button-primary {
-            background-color: #9333ea;
-            color: white;
-        }
-
-        .button-primary:hover {
-            background-color: #7e22ce;
-        }
-
-        .button-destructive {
-            background-color: #ef4444;
-            color: white;
-        }
-
-        .button-destructive:hover {
-            background-color: #dc2626;
-        }
-
-        .result {
-            font-family: monospace;
-            white-space: pre-wrap;
-            background-color: #f9fafb;
-            padding: 1rem;
-            border-radius: 0.375rem;
-        }
-
-        .timestamp {
-            color: #9333ea;
-            margin-right: 1rem;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            padding: 1rem;
-            border-radius: 0.375rem;
-            background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        .toast.success {
-            border-left: 4px solid #10b981;
-        }
-
-        .toast.error {
-            border-left: 4px solid #ef4444;
-        }
-
-        /* Switch styles */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 60px;
-            height: 34px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 26px;
-            width: 26px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider {
-            background-color: #9333ea;
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(26px);
-        }
-
-        .timestamp-segment {
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 0.375rem;
-            transition: background-color 0.2s;
-        }
-
-        .timestamp-segment:hover {
-            background-color: #f3f4f6;
-        }
-
-        #audioPlayer {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -262,9 +47,22 @@
                 </label>
             </div>
 
+            <div class="form-group" id="webvttContainer">
+                <label for="webvtt">Generate WebVTT</label>
+                <label class="switch">
+                    <input type="checkbox" id="webvtt">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="urlInput">Or enter a URL (audio/video)</label>
+                <input type="url" id="urlInput" placeholder="https://example.com/media.mp3" class="url-input">
+            </div>
+
             <div class="dropzone" id="dropzone">
-                <p>Drop your audio file here or click to browse</p>
-                <input type="file" id="fileInput" accept="audio/*" style="display: none;">
+                <p>Drop your audio/video file here or click to browse</p>
+                <input type="file" id="fileInput" accept="audio/*,video/*" style="display: none;">
             </div>
 
             <div class="button-group">
@@ -282,8 +80,13 @@
 
         <div id="resultCard" class="card" style="display: none;">
             <h2 style="margin-bottom: 1rem;">Transcription Result</h2>
-            <audio id="audioPlayer" controls></audio>
+            <audio id="audioPlayer" controls style="display: none;"></audio>
+            <video id="videoPlayer" controls style="display: none; width: 100%; margin-bottom: 1rem;"></video>
             <div id="result" class="result"></div>
+            <div id="webvttResult" class="result" style="display: none;">
+                <h3 style="margin: 1rem 0;">WebVTT Output</h3>
+                <pre></pre>
+            </div>
         </div>
     </div>
 
@@ -291,8 +94,9 @@
 
     <script>
         let mediaRecorder = null;
-        let audioFile = null;
+        let mediaFile = null;
         let isRecording = false;
+        let mediaType = 'audio';
 
         // Elements
         const dropzone = document.getElementById('dropzone');
@@ -302,16 +106,32 @@
         const modelSelect = document.getElementById('model');
         const languageSelect = document.getElementById('language');
         const timestampsCheck = document.getElementById('timestamps');
+        const webvttCheck = document.getElementById('webvtt');
         const timestampContainer = document.getElementById('timestampContainer');
         const resultCard = document.getElementById('resultCard');
         const resultDiv = document.getElementById('result');
         const toast = document.getElementById('toast');
 
-        // Show/hide timestamp option based on model
-        modelSelect.addEventListener('change', () => {
-            timestampContainer.style.display = 
-                modelSelect.value.includes('timestamped') ? 'block' : 'none';
-        });
+        // Show/hide timestamp and webvtt options based on model and timestamps
+        function updateOptionsVisibility() {
+            const isTimestampedModel = modelSelect.value.includes('timestamped');
+            timestampContainer.style.display = isTimestampedModel ? 'block' : 'none';
+            
+            // If timestamps are disabled, disable and hide WebVTT option
+            const webvttContainer = document.getElementById('webvttContainer');
+            if (!isTimestampedModel || !timestampsCheck.checked) {
+                webvttContainer.style.display = 'none';
+                webvttCheck.checked = false;
+            } else {
+                webvttContainer.style.display = 'block';
+            }
+        }
+
+        modelSelect.addEventListener('change', updateOptionsVisibility);
+        timestampsCheck.addEventListener('change', updateOptionsVisibility);
+
+        // Initial visibility check
+        updateOptionsVisibility();
 
         // File handling
         dropzone.addEventListener('click', () => fileInput.click());
@@ -326,10 +146,10 @@
             e.preventDefault();
             dropzone.style.borderColor = '#d1d5db';
             const file = e.dataTransfer.files[0];
-            if (file?.type.startsWith('audio/')) {
+            if (file?.type.startsWith('audio/') || file?.type.startsWith('video/')) {
                 handleFileSelection(file);
             } else {
-                showToast('Please upload an audio file', 'error');
+                showToast('Please upload an audio or video file', 'error');
             }
         });
         fileInput.addEventListener('change', (e) => {
@@ -338,13 +158,25 @@
         });
 
         function handleFileSelection(file) {
-            audioFile = file;
+            mediaFile = file;
             dropzone.innerHTML = `Selected: ${file.name}`;
             transcribeButton.disabled = false;
             
-            // Update audio player source
+            // Update player source
             const audioPlayer = document.getElementById('audioPlayer');
-            audioPlayer.src = URL.createObjectURL(file);
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            if (file.type.startsWith('audio/')) {
+                mediaType = 'audio';
+                audioPlayer.style.display = 'block';
+                videoPlayer.style.display = 'none';
+                audioPlayer.src = URL.createObjectURL(file);
+            } else {
+                mediaType = 'video';
+                videoPlayer.style.display = 'block';
+                audioPlayer.style.display = 'none';
+                videoPlayer.src = URL.createObjectURL(file);
+            }
         }
 
         // Recording functionality
@@ -368,7 +200,8 @@
             mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
             mediaRecorder.onstop = () => {
                 const blob = new Blob(chunks, { type: 'audio/wav' });
-                audioFile = new File([blob], 'recording.wav', { type: 'audio/wav' });
+                mediaFile = new File([blob], 'recording.wav', { type: 'audio/wav' });
+                mediaType = 'audio';
                 dropzone.innerHTML = 'Recording saved';
                 transcribeButton.disabled = false;
             };
@@ -400,11 +233,41 @@
         }
 
         // Transcription
+        // URL input handling
+        const urlInput = document.getElementById('urlInput');
+        urlInput.addEventListener('input', () => {
+            const url = urlInput.value.trim();
+            if (url) {
+                mediaFile = url;
+                mediaType = url.match(/\.(mp4|webm|mov)$/i) ? 'video' : 'audio';
+                dropzone.innerHTML = `URL selected: ${url}`;
+                transcribeButton.disabled = false;
+                
+                // Update player source
+                const audioPlayer = document.getElementById('audioPlayer');
+                const videoPlayer = document.getElementById('videoPlayer');
+                
+                if (mediaType === 'audio') {
+                    audioPlayer.style.display = 'block';
+                    videoPlayer.style.display = 'none';
+                    audioPlayer.src = url;
+                } else {
+                    videoPlayer.style.display = 'block';
+                    audioPlayer.style.display = 'none';
+                    videoPlayer.src = url;
+                }
+            }
+        });
+
         transcribeButton.addEventListener('click', async () => {
-            if (!audioFile) return;
+            if (!mediaFile) return;
 
             const formData = new FormData();
-            formData.append('audio', audioFile);
+            if (typeof mediaFile === 'string') {
+                formData.append('url', mediaFile);
+            } else {
+                formData.append(mediaType, mediaFile);
+            }
 
             transcribeButton.disabled = true;
             transcribeButton.textContent = 'Processing...';
@@ -413,10 +276,11 @@
                 const model = modelSelect.value;
                 const language = languageSelect.value;
                 const timestamps = timestampsCheck.checked;
+                const webvtt = webvttCheck.checked;
 
                 const url = `https://api.woolball.xyz/v1/speech-to-text?model=${model}&outputLanguage=${language}${
                     model.includes('timestamped') ? `&returnTimestamps=${timestamps}` : ''
-                }`;
+                }&webvtt=${webvtt}`;
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -452,6 +316,15 @@
                     .join('');
             } else {
                 resultDiv.textContent = response.data;
+            }
+
+            // Handle WebVTT output if available
+            const webvttResult = document.getElementById('webvttResult');
+            if (response.data.webvtt) {
+                webvttResult.style.display = 'block';
+                webvttResult.querySelector('pre').textContent = response.data.webvtt;
+            } else {
+                webvttResult.style.display = 'none';
             }
         }
 
