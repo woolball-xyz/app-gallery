@@ -320,9 +320,37 @@
 
             // Handle WebVTT output if available
             const webvttResult = document.getElementById('webvttResult');
+            const webvttCheck = document.getElementById('webvtt');
+            const languageSelect = document.getElementById('language');
+            
             if (response.data.webvtt) {
                 webvttResult.style.display = 'block';
                 webvttResult.querySelector('pre').textContent = response.data.webvtt;
+                
+                // Create WebVTT blob and add to track element
+                const blob = new Blob([response.data.webvtt], { type: 'text/vtt' });
+                const trackUrl = URL.createObjectURL(blob);
+                
+                const player = mediaType === 'video' ? videoPlayer : audioPlayer;
+                
+                // Remove any existing tracks
+                while (player.firstChild) {
+                    if (player.firstChild instanceof HTMLTrackElement) {
+                        if (player.firstChild.src) {
+                            URL.revokeObjectURL(player.firstChild.src);
+                        }
+                        player.removeChild(player.firstChild);
+                    }
+                }
+                
+                // Add new track with correct language
+                const track = document.createElement('track');
+                track.kind = 'subtitles';
+                track.label = 'Transcription';
+                track.srclang = languageSelect.value;
+                track.src = trackUrl;
+                track.default = true;
+                player.appendChild(track);
             } else {
                 webvttResult.style.display = 'none';
             }
