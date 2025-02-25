@@ -266,7 +266,7 @@
             if (typeof mediaFile === 'string') {
                 formData.append('url', mediaFile);
             } else {
-                formData.append(mediaType, mediaFile);
+                formData.append('audio', mediaFile);
             }
 
             transcribeButton.disabled = true;
