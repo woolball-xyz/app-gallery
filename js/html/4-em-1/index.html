@@ -205,8 +205,9 @@
                 document.getElementById("input-stt").innerHTML = '<audio controls src="input.wav" />';
                 const formData = new FormData();
                 formData.append('audio', audioData);
+                formData.append('outputLanguage', 'pt');
 
-                const sttResponse = await fetch(`${baseUrl}/speech-to-text?outputLanguage=pt`, {
+                const sttResponse = await fetch(`${baseUrl}/speech-to-text`, {
                     method: "POST",
                     headers: authorizationHeader,
                     body: formData
